@@ -3,10 +3,9 @@ from fastapi.responses import StreamingResponse
 from fastapi import Request
 from fastapi.responses import JSONResponse
 import json
-import pydantic
 import socket
 import typer
-from typing import Any, AsyncIterator
+from typing import AsyncIterator
 import uvicorn
 
 from . import dev
@@ -34,8 +33,6 @@ def run(host: str = "0.0.0.0", port: int = 7999) -> None:
             f"Port {port} is already in use, possibly because the ART server is already running."
         )
         return
-
-    
 
     backend = LocalBackend()
     app = FastAPI()

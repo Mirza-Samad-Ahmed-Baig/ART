@@ -171,12 +171,16 @@ class TrajectoryGroup(pydantic.BaseModel):
         *,
         exceptions: list[BaseException] = [],
     ) -> Awaitable["TrajectoryGroup"]: ...
+
+    def __new__(
         cls,
-        trajectories: Iterable[Awaitable[Trajectory]],
+        trajectories: Iterable,
         *,
         exceptions: list[BaseException] = [],
-    ) -> Awaitable["TrajectoryGroup"]:
+    ):
         ts = list(trajectories)
+        if not ts or isinstance(ts[0], (Trajectory, BaseException)):
+            return super().__new__(cls)
 
         async def _(exceptions: list[BaseException]):
             from .gather import get_gather_context, record_metrics
@@ -210,11 +214,3 @@ class TrajectoryGroup(pydantic.BaseModel):
 
         coro = _(exceptions.copy())
         return CoroutineWithMetadata(coro, len(ts))
-
-    def __new__(
-        cls,
-        trajectories: Iterable[Trajectory | BaseException],
-        *,
-        exceptions: list[BaseException] = [],
-    ) -> "TrajectoryGroup":
-        return super().__new__(cls)
